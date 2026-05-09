@@ -1,5 +1,4 @@
 import express from "express";
-import "dotenv/config";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
