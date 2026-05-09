@@ -14,6 +14,14 @@
  */
 export function requireRole(...roles) {
   return (req, res, next) => {
-    // Your code here
+    if (req.user) {
+      if (roles.includes(req.user.role)) {
+        next();
+      } else {
+        res.status(403).json({ error: { message: "Forbidden" } });
+      }
+    } else {
+      return res.status(401).json({ error: { message: "Not authenticated" } });
+    }
   };
 }

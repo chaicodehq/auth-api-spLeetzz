@@ -1,12 +1,12 @@
-import { User } from '../models/user.model.js';
-import { verifyToken } from '../utils/jwt.js';
+import { User } from "../models/user.model.js";
+import { verifyToken } from "../utils/jwt.js";
 
 /**
  * TODO: Authenticate user using JWT
  *
  * 1. Extract Authorization header from req.headers.authorization
  * 2. Check if header exists and starts with "Bearer "
- *    - If not: return 401 with { error: { message: "No token provided" } }
+ *    - If not: return 401 with
  * 3. Extract token (split by space and get second part)
  * 4. Verify token using verifyToken(token) - wrap in try/catch
  *    - If invalid: return 401 with { error: { message: "Invalid token" } }
@@ -17,8 +17,23 @@ import { verifyToken } from '../utils/jwt.js';
  */
 export async function authenticate(req, res, next) {
   try {
-    // Your code here
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ error: { message: "No token provided" } });
+    }
+
+    const token = authHeader.split(" ")[1];
+    try {
+      const decoded = verifyToken(token);
+      const user = await User.findById(decoded.userId);
+      if (!user) throw Error;
+      req.user = user;
+    } catch (err) {
+      return res.status(401).json({ error: { message: "Invalid token" } });
+    }
+    next();
   } catch (error) {
-    return res.status(401).json({ error: { message: 'Invalid token' } });
+    return res.status(401).json({ error: { message: "Invalid token" } });
   }
 }
